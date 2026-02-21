@@ -29,7 +29,7 @@ function StarField() {
   }, [])
 
   // 2. Animación: Rotación orbital compleja
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (ref.current) {
       // CAMBIO 2: Rotamos en los 3 ejes a diferentes velocidades
       // para un efecto orbital más rico y menos predecible.

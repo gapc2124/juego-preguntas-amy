@@ -17,20 +17,25 @@ export default function Dice3D({ isRolling, onRoll, resultIcon, resultColor }: D
   const iconTexture = useMemo(() => {
     if (!resultIcon) return null;
     const canvas = document.createElement('canvas');
-    canvas.width = 512; // Mayor resolución
+    canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.fillStyle = 'white';
+      ctx.fillStyle = '#ffffff'; // Color de fondo blanco puro
       ctx.fillRect(0, 0, 512, 512);
       ctx.fillStyle = resultColor || '#333';
-      ctx.font = '300px "Material Symbols Outlined"'; // Icono mucho más grande
+      // Aumentamos significativamente el tamaño de la fuente para que el icono sea grande y centrado
+      ctx.font = '400px "Material Symbols Outlined"';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
+      // Dibujamos el icono en el centro exacto del canvas
       ctx.fillText(resultIcon, 256, 256);
     }
     const tex = new THREE.CanvasTexture(canvas);
     tex.needsUpdate = true;
+    // Ajustamos el repeat y offset para que la textura cubra cada cara correctamente
+    tex.repeat.set(1, 1);
+    tex.offset.set(0, 0);
     return tex;
   }, [resultIcon, resultColor]);
 
@@ -46,8 +51,9 @@ export default function Dice3D({ isRolling, onRoll, resultIcon, resultColor }: D
 
   return (
     <group>
-      <ambientLight intensity={0.8} />
-      <pointLight position={[5, 5, 5]} intensity={1} />
+      {/* Aumentamos la intensidad de la luz para que el dado se vea más brillante y blanco */}
+      <ambientLight intensity={1.2} />
+      <pointLight position={[5, 5, 5]} intensity={1.5} />
       
       <RoundedBox 
         ref={meshRef}
@@ -61,9 +67,10 @@ export default function Dice3D({ isRolling, onRoll, resultIcon, resultColor }: D
       >
         <meshStandardMaterial 
           map={!isRolling ? iconTexture : null} 
-          color="white" 
-          roughness={1} // 100% Mate
-          metalness={0} // Sin reflejos metálicos
+          // Cambiamos el color base a blanco puro para quitar la opacidad
+          color="#ffffff"
+          roughness={0.8} // Mantenemos un acabado mate
+          metalness={0}
         />
       </RoundedBox>
       <ContactShadows position={[0, -1.6, 0]} opacity={0.3} scale={6} blur={2.5} />
