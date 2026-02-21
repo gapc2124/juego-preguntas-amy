@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.tsx
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import HomePage from './HomePage';
+import PreparacionPage from './PreparacionPage';
+import JuegoPage from './JuegoPage'; // Asegúrate de crear este archivo después
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+// Componente para manejar errores de ruta (404)
+function NotFound() {
+  const navigate = useNavigate();
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div style={{ color: 'white', textAlign: 'center', marginTop: '30vh', fontFamily: "'Outfit', sans-serif" }}>
+      <h1>🚀 ¡Vaya! Te saliste de la galaxia</h1>
+      <button 
+        onClick={() => navigate('/')} 
+        style={{ marginTop: '20px', padding: '10px 20px', borderRadius: '20px', border: 'none', cursor: 'pointer' }}
+      >
+        Volver al Inicio
+      </button>
+    </div>
+  );
 }
 
-export default App
+export default function App() {
+  return (
+    /* El basename es CRUCIAL para que funcione en la carpeta de tu proyecto */
+    <Router basename="/juego-preguntas-amy">
+      <Routes>
+        {/* Ruta principal con el fondo de estrellas */}
+        <Route path="/" element={<HomePage />} />
+        
+        {/* Ruta de preparación con fondo blanco y selección de barajas */}
+        <Route path="/preparacion" element={<PreparacionPage />} />
+
+        {/* Ruta del juego donde se mostrarán las preguntas aleatorias */}
+        <Route path="/juego" element={<JuegoPage />} />
+
+        {/* Ruta de respaldo para errores */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+}
