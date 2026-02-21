@@ -1,97 +1,79 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap');
-/* Asegura que el Canvas 3D ocupe toda la pantalla y quede detrás */
+/* src/App.css */
+
+/* Contenedor del Canvas 3D */
 .three-background-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100dvh;
-  z-index: -1; /* Detrás de todo */
-  pointer-events: none; /* Para que no interfiera con los clicks en los botones */
+  z-index: -1;
+  pointer-events: none;
 }
 
-/* ... el resto de tu CSS para textos y botones sigue aquí igual ... */
+/* Capa rosada sutil para el ambiente */
+.pink-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to top, rgba(255, 105, 180, 0.2) 0%, rgba(255, 105, 180, 0.05) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-/* ================= MAIN CONTAINER ================= */
+/* Contenedor Principal (Layout Zero Scroll) */
 .landing-container {
   position: relative;
   width: 100vw;
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center; /* Centrado vertical */
   align-items: center;
   text-align: center;
-  padding: 2rem;
-  box-sizing: border-box;
-  color: white;
+  padding: 1.5rem;
   z-index: 1;
 }
 
-/* ================= TYPOGRAPHY ================= */
+/* Tipografía Adaptativa */
 .title {
-  font-family: 'Outfit', sans-serif;
-  font-size: 5.5rem; /* Un poco más grande para que impacte */
+  /* clamp(mínimo, ideal, máximo) para que no haya desborde en X */
+  font-size: clamp(3.5rem, 18vw, 6rem); 
   font-weight: 900;
-  margin-bottom: 1rem;
+  margin: 0 0 0.5rem 0;
   line-height: 1;
-  letter-spacing: -3px; /* Letras más juntas para un look moderno */
-  
-  /* Degradado en el texto */
-  background: linear-gradient(to bottom, #ffffff 30%, #a2d2ff 100%);
+  letter-spacing: -2px;
+  background: linear-gradient(to bottom, #ffffff 40%, #a2d2ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  
-  /* Sin sombras pesadas, solo un suavizado para legibilidad */
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
 }
 
 .subtitle {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 4vw, 1.2rem);
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.9);
-  /* Estilo más minimalista sin el fondo de "píldora" si prefieres algo más sobrio */
-  margin-bottom: 4rem;
-  max-width: 80%;
-  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 3rem;
+  max-width: 320px; /* Evita que el texto sea muy ancho en PC */
+  line-height: 1.4;
 }
 
-/* ================= BUTTON ================= */
+/* Botón imponente */
 .btn-start {
-  /* Nuevo degradado celeste brillante */
   background: linear-gradient(45deg, #00c6ff, #0072ff); 
   color: white;
   border: none;
-  padding: 1.2rem 3.5rem;
-  font-size: 1.3rem;
+  padding: 1.1rem 3rem;
+  font-size: 1.2rem;
   font-weight: 900;
   border-radius: 50px;
   cursor: pointer;
-  /* Sombra celeste para hacer juego */
-  box-shadow: 0 8px 25px rgba(0, 198, 255, 0.5);
+  box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
   transition: transform 0.2s, box-shadow 0.2s;
-  -webkit-tap-highlight-color: transparent;
-  text-transform: uppercase; /* Lo hace ver más imponente */
+  text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .btn-start:active {
-  transform: scale(0.95);
-  box-shadow: 0 4px 12px rgba(0, 198, 255, 0.4);
-}
-
-.pink-overlay {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  
-  /* Opción recomendada: Un degradado que cubre todo, 
-     siendo un poquito más intenso abajo y más suave arriba */
-  background: linear-gradient(to top, rgba(255, 105, 180, 0.25) 0%, rgba(255, 105, 180, 0.08) 100%);
-  
-  /* Si prefieres que el color sea 100% parejo en toda la pantalla, 
-     borra la línea de arriba y usa esta: */
-  /* background-color: rgba(255, 105, 180, 0.15); */
-  
-  pointer-events: none; /* Súper importante para que los clics pasen a los botones */
+  transform: scale(0.96);
+  box-shadow: 0 4px 10px rgba(0, 198, 255, 0.3);
 }

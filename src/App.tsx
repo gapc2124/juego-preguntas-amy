@@ -1,11 +1,10 @@
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import HomePage from './HomePage';
 import PreparacionPage from './PreparacionPage';
-import JuegoPage from './JuegoPage'; // Asegúrate de crear este archivo después
+import JuegoPage from './JuegoPage';
 import './App.css';
 
-// Componente para manejar errores de ruta (404)
 function NotFound() {
   const navigate = useNavigate();
   return (
@@ -23,19 +22,12 @@ function NotFound() {
 
 export default function App() {
   return (
-    /* El basename es CRUCIAL para que funcione en la carpeta de tu proyecto */
-    <Router basename="/juego-preguntas-amy">
+    /* Al usar HashRouter ya no necesitamos el basename que daba problemas */
+    <Router>
       <Routes>
-        {/* Ruta principal con el fondo de estrellas */}
         <Route path="/" element={<HomePage />} />
-        
-        {/* Ruta de preparación con fondo blanco y selección de barajas */}
         <Route path="/preparacion" element={<PreparacionPage />} />
-
-        {/* Ruta del juego donde se mostrarán las preguntas aleatorias */}
         <Route path="/juego" element={<JuegoPage />} />
-
-        {/* Ruta de respaldo para errores */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
