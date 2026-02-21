@@ -39,8 +39,8 @@ export default function Dice3D({ isRolling, onRoll, resultIcon, resultColor }: D
     return tex;
   }, [resultIcon, resultColor]);
 
-  useFrame((state, delta) => {
-    if (isRolling) {
+    useFrame((_state, delta) => {
+        if (isRolling) {
       meshRef.current.rotation.x += delta * 25;
       meshRef.current.rotation.y += delta * 30;
     } else {
