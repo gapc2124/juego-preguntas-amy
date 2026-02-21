@@ -12,31 +12,60 @@ export default function JuegoPage() {
   const players: string[] = location.state?.players || ['Jugador'];
 
   const [isRolling, setIsRolling] = useState(false);
-  const [isReady, setIsReady] = useState(false); // <- Estado del Checkbox
+  const [isReady, setIsReady] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  
+  // ESTADO PARA EL MAZO DE ESTA PARTIDA (Para evitar repeticiones)
+  const [questionsQueue, setQuestionsQueue] = useState<Question[]>([]);
 
-  const pickRandomQuestion = useCallback(() => {
-    if (selectedDeckIds.length === 0) return;
-    const randomDeckId = selectedDeckIds[Math.floor(Math.random() * selectedDeckIds.length)];
-    const possibleQuestions = allQuestions.filter(q => q.deckId === randomDeckId);
-    const randomQ = possibleQuestions[Math.floor(Math.random() * possibleQuestions.length)];
-    setCurrentQuestion(randomQ);
+  // Función para barajar (Shuffle)
+  const shuffle = (array: Question[]) => {
+    return array.sort(() => Math.random() - 0.5);
+  };
+
+  // Inicializar el mazo al empezar
+  useEffect(() => {
+    if (selectedDeckIds.length > 0) {
+      const filtered = allQuestions.filter(q => selectedDeckIds.includes(q.deckId));
+      setQuestionsQueue(shuffle([...filtered]));
+    }
   }, [selectedDeckIds]);
 
+  const pickNextQuestion = useCallback(() => {
+    if (questionsQueue.length === 0) return;
+
+    const nextQueue = [...questionsQueue];
+    const nextQ = nextQueue.shift(); // Sacamos la primera carta
+    
+    if (nextQ) {
+      setCurrentQuestion(nextQ);
+      setQuestionsQueue(nextQueue); // Actualizamos el mazo restante
+    }
+  }, [questionsQueue]);
+
+  // Primera carga
   useEffect(() => {
-    if (selectedDeckIds.length > 0) pickRandomQuestion();
-  }, [selectedDeckIds, pickRandomQuestion]);
+    if (questionsQueue.length > 0 && !currentQuestion) {
+      pickNextQuestion();
+    }
+  }, [questionsQueue, currentQuestion, pickNextQuestion]);
 
   const handleRoll = () => {
     if (isRolling || !isReady) return;
+    
+    if (questionsQueue.length === 0) {
+        alert("¡Se acabaron las cartas! Regresa para elegir más mazzos.");
+        return;
+    }
+
     setIsRolling(true);
     
     setTimeout(() => {
-      pickRandomQuestion();
+      pickNextQuestion();
       setCurrentPlayerIndex((prev) => (prev + 1) % players.length);
       setIsRolling(false);
-      setIsReady(false); // Resetea el check para el siguiente jugador automáticamente
+      setIsReady(false);
     }, 1000); 
   };
 
@@ -49,98 +78,87 @@ export default function JuegoPage() {
 
   return (
     <div style={{ 
-      backgroundColor: '#0a192f', 
-      width: '100%', 
-      height: '100dvh', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      padding: '2rem 1.5rem', 
-      fontFamily: "'Outfit', sans-serif", 
-      overflow: 'hidden'
+      backgroundColor: '#0a192f', width: '100%', height: '100dvh', 
+      display: 'flex', flexDirection: 'column', padding: '0.5rem 1.2rem', 
+      fontFamily: "'Outfit', sans-serif", overflow: 'hidden', boxSizing: 'border-box'
     }}>
       
-      {/* SECCIÓN SUPERIOR: CARTA (Ocupa todo el espacio disponible y se centra) */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+      {/* NAV SUPERIOR: Botón Salir */}
+      <nav style={{ display: 'flex', alignItems: 'center', paddingTop: '0.5rem' }}>
+        <button 
+          onClick={() => navigate('/preparacion')}
+          style={{
+            background: 'none', border: 'none', color: 'white',
+            display: 'flex', alignItems: 'center', gap: '8px',
+            cursor: 'pointer', opacity: 0.6
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>arrow_back_ios</span>
+          <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>Salir</span>
+        </button>
+      </nav>
+
+      {/* SECCIÓN CENTRAL: CARTA (Tamaño ajustado) */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {currentQuestion && deckInfo && (
           <div style={{ 
-            backgroundColor: 'white', 
-            borderRadius: '24px', 
-            width: '100%', 
-            maxWidth: '420px',
-            borderTop: `16px solid ${deckInfo.color}`, 
-            boxShadow: '0 15px 40px rgba(0,0,0,0.5)',
-            padding: '4rem 2rem', // Más padding para hacerla más alta
-            textAlign: 'center',
-            minHeight: '420px', // Carta considerablemente más alta
-            display: 'flex', 
-            flexDirection: 'column', 
-            justifyContent: 'center',
+            backgroundColor: 'white', borderRadius: '24px', width: '100%', maxWidth: '360px',
+            borderTop: `18px solid ${deckInfo.color}`, 
+            boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+            padding: '1.5rem 1.2rem', textAlign: 'center',
+            minHeight: '260px', // Reducción vertical sutil
+            display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.8rem'
           }}>
              
-             {/* Textos gigantes y limpios */}
              <h3 style={{ 
-               fontSize: '1.5rem', textTransform: 'uppercase', letterSpacing: '2px', 
-               fontWeight: 900, color: deckInfo.color, marginBottom: '2rem' 
+               fontSize: '0.85rem', // Texto más pequeño
+               textTransform: 'uppercase', letterSpacing: '1px', 
+               fontWeight: 800, color: deckInfo.color, margin: 0
               }}>
                Turno de: {currentPlayerName}
              </h3>
              
              <h2 style={{ 
-               color: '#222', fontSize: '2rem', // Letra de pregunta más grande
-               fontWeight: 800, lineHeight: '1.4', margin: '0'
+               color: '#222', 
+               fontSize: '1.35rem', // Pregunta más pequeña para que no sature
+               fontWeight: 700, lineHeight: '1.4', margin: '0'
               }}>
                "{currentQuestion.text}"
              </h2>
+
+             <p style={{ fontSize: '0.7rem', color: '#bbb', marginTop: '10px' }}>
+                Cartas restantes: {questionsQueue.length}
+             </p>
           </div>
         )}
       </div>
 
-      {/* SECCIÓN INFERIOR: RULETA Y BOTONES */}
+      {/* SECCIÓN INFERIOR */}
       <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '2rem',
-        marginBottom: '1rem',
-        marginTop: '2rem'
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        gap: '1rem', paddingBottom: '1.5rem'
       }}>
         
         <Roulette 
-          isRolling={isRolling} 
-          isReady={isReady}
-          onRoll={handleRoll} 
-          resultIcon={deckInfo?.icon} 
-          resultColor={deckInfo?.color} 
+          isRolling={isRolling} isReady={isReady} onRoll={handleRoll} 
+          resultIcon={deckInfo?.icon} resultColor={deckInfo?.color} 
         />
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-          
-          {/* EL CHECKBOX QUE ACTIVA LA RULETA */}
-          <label style={{ 
-            display: 'flex', alignItems: 'center', gap: '12px', color: 'white', 
-            cursor: 'pointer', fontSize: '1.2rem', fontWeight: 700, userSelect: 'none' 
-          }}>
-            <input 
-              type="checkbox" 
-              checked={isReady} 
-              onChange={(e) => setIsReady(e.target.checked)}
-              disabled={isRolling}
-              style={{ width: '24px', height: '24px', cursor: 'pointer', accentColor: '#34A853' }} 
-            />
-            {isRolling ? "GIRANDO..." : "Toca para girar"}
-          </label>
-
-          <button 
-            onClick={() => navigate('/preparacion')} 
-            style={{ 
-              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', 
-              padding: '0.8rem 2rem', borderRadius: '30px', color: 'white', cursor: 'pointer', 
-              fontSize: '0.85rem', fontWeight: 600 
-            }}
-          >
-            Terminar partida
-          </button>
-        </div>
+        <label style={{ 
+          display: 'flex', alignItems: 'center', gap: '10px', color: 'white', 
+          cursor: 'pointer', fontSize: '1rem', fontWeight: 600, userSelect: 'none',
+          padding: '10px 20px',
+          backgroundColor: isReady ? 'rgba(52, 168, 83, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '16px', border: isReady ? '1.5px solid #34A853' : '1.5px solid transparent'
+        }}>
+          <input 
+            type="checkbox" checked={isReady} 
+            onChange={(e) => setIsReady(e.target.checked)}
+            disabled={isRolling}
+            style={{ width: '18px', height: '18px', accentColor: '#34A853' }} 
+          />
+          <span>{isRolling ? "GIRANDO..." : "Toca para girar"}</span>
+        </label>
       </div>
     </div>
   );
