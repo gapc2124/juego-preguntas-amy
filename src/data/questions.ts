@@ -40,6 +40,10 @@ export const allQuestions: Question[] = [
   { id: 'b17', text: "¿Qué personaje bíblico te sorprendería que resucitara?", deckId: '3' },
   { id: 'b18', text: "¿Qué es lo que más te enorgullece de ser testigo de Jehová?", deckId: '3' },
   { id: 'b19', text: "¿Qué consejo bíblico sobre el amor es el que más te gusta aplicar con nosotros?", deckId: '3' },
+  { id: 'b20', text: "¿Cuál es tu cántico favorito y qué sentimiento te genera cuando lo cantas?", deckId: '3' },
+  { id: 'b21', text: "¿Qué personaje de la Biblia crees que sería tu amigo/a en el paraíso?", deckId: '3' },
+  { id: 'b22', text: "¿Cuál es la objeción en la puerta que más te costaba responder antes y ahora ya dominas?", deckId: '3' },
+  { id: 'b23', text: "¿Qué actualización de creencias es la que más te ha gustado?", deckId: '3' },
 
   // --- Conocimiento (ID: 1) ---
   { id: 'c1', text: "¿Cuál es su recuerdo favorito de nosotros dos?", deckId: '1' },
@@ -81,6 +85,7 @@ export const allQuestions: Question[] = [
   { id: 'c37', text: "¿A que país le gustaría ir a vivir a tu pareja?", deckId: '1' },
   { id: 'c38', text: "¿Qué es lo que tu pareja encuentra más 'tierno' de tu forma de ser?", deckId: '1' },
   { id: 'c39', text: "¿A Quién le gusta dar más afecto en público?", deckId: '1' },
+  { id: 'c40', text: "¿Quién es más probable de decir ''te lo dije' en una discusión", deckId: '1' },
 
   // --- Íntimo (ID: 2) ---
   { id: 'i1', text: "¿Qué es lo que más te hace sentir deseado/a por tu pareja?", deckId: '2' },
@@ -95,7 +100,7 @@ export const allQuestions: Question[] = [
   { id: 'i10', text: "¿Qué secreto no has confesado aún con tu pareja?", deckId: '2' },
   { id: 'i11', text: "¿Qué gesto de tu pareja consideras totalmente irresistible hoy por hoy?", deckId: '2' },
   { id: 'i12', text: "¿Qué plan tienes para mantener encendida la chispa después de muchos años de relación?", deckId: '2' },
-  { id: 'i13', text: "¿Qué límite respetado hasta hoy estarías dispuesto/a a romper una vez casados?", deckId: '2' },
+  { id: 'i13', text: "¿Qué límite respetado hasta hoy estarías dispuesto/a a romper en un futuro?", deckId: '2' },
   { id: 'i14', text: "¿Qué solución propones para cuando uno tenga ganas de mimos y el otro no?", deckId: '2' },
   { id: 'i15', text: "¿Qué valor le das a las palabras dulces durante vuestros momentos de mayor cercanía?", deckId: '2' },
   { id: 'i16', text: "¿Cómo reaccionarías cuando surja un momento gracioso o torpe en la intimidad?", deckId: '2' },
@@ -112,9 +117,17 @@ export const allQuestions: Question[] = [
   { id: 'i27', text: "¿Qué límite en la intimidad le pedirías a tu pareja no romper jamás?", deckId: '2' },
   { id: 'i28', text: "¿Quién crees que debe tomar la iniciativa en vuestra futura intimidad?", deckId: '2' },
   { id: 'i29', text: "¿Qué tan importantes son para ti los olores en los momentos íntimos?", deckId: '2' },
-  { id: 'i30', text: "¿Qué tan importante es para ti lo visual en la intimidad?", deckId: '2' },
+  { id: 'i30', text: "¿Cuál es el mejor método anticonceptivo en tu opinión?", deckId: '2' },
   { id: 'i31', text: "¿Hay alguna parte del cuerpo de tu pareja que no te guste o te cause curiosidad?", deckId: '2' },
   { id: 'i32', text: "¿Qué parte del cuerpo de tu pareja te gusta más (no vale decir los ojos)?", deckId: '2' },
+  { id: 'i33', text: "¿Cuál es tu mayor temor o duda respecto a nuestra primera noche de bodas?", deckId: '2' },
+  { id: 'i34', text: "¿Te preocupa que nuestra frecuencia física baje después de los primeros años de casados?", deckId: '2' },
+  { id: 'i35', text: "¿Qué tan importante es para ti la higiene previa (ducha, perfume, cepillado) para sentirte con ganas de estar conmigo?", deckId: '2' },
+  { id: 'i36', text: "¿Tienes temor de decepcionarte por algo en la intimidad?", deckId: '2' },
+  { id: 'i37', text: "¿Te da miedo no cumplir con las expectativas que yo pueda tener sobre nuestra vida íntima?", deckId: '2' },
+  { id: 'i38', text: "¿Te asusta que los cambios físicos naturales (peso, edad, salud) afecten la atracción que sentimos el uno por el otro?", deckId: '2' },
+  { id: 'i39', text: "¿Te preocupa que el respeto que tenemos hoy cambie de alguna manera al empezar nuestra vida sexual?", deckId: '2' },
+  { id: 'i40', text: "¿Cómo crees que deberíamos reaccionar si la frecuencia con la que queremos estar juntos es muy distinta entre los dos?", deckId: '2' },
 
   // --- Familiar (ID: 4) ---
   { id: 'f1', text: "¿Qué es lo que más valoras de la educación que te dieron tus padres?", deckId: '4' },
