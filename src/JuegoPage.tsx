@@ -15,22 +15,74 @@ export default function JuegoPage() {
   const [isReady, setIsReady] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  
-  // ESTADO PARA EL MAZO DE ESTA PARTIDA (Para evitar repeticiones)
   const [questionsQueue, setQuestionsQueue] = useState<Question[]>([]);
 
-  // Función para barajar (Shuffle)
+  // Función para barajar un arreglo
   const shuffle = (array: Question[]) => {
-    return array.sort(() => Math.random() - 0.5);
+    return [...array].sort(() => Math.random() - 0.5);
   };
+
+  // Algoritmo avanzado para intercalar mazos
+  const buildInterleavedQueue = useCallback(() => {
+    if (selectedDeckIds.length === 0) return [];
+    
+    // Filtramos todas las preguntas de los mazos seleccionados
+    const filtered = allQuestions.filter(q => selectedDeckIds.includes(q.deckId));
+    
+    // Si solo hay un mazo, simplemente lo barajamos
+    if (selectedDeckIds.length === 1) return shuffle(filtered);
+
+    // Agrupamos las preguntas por deckId
+    const groups: Record<string, Question[]> = {};
+    selectedDeckIds.forEach(id => { groups[id] = []; });
+    filtered.forEach(q => {
+      if (groups[q.deckId]) groups[q.deckId].push(q);
+    });
+
+    // Barajamos internamente cada grupo
+    for (const id in groups) {
+      groups[id] = shuffle(groups[id]);
+    }
+
+    const finalQueue: Question[] = [];
+    let lastDeckId: string | null = null;
+
+    // Intercalamos las cartas
+    while (true) {
+      let bestDeckId: string | null = null;
+      let maxCards = 0;
+
+      // Buscamos el mazo válido (diferente al anterior) con más cartas restantes
+      for (const id in groups) {
+        if (id === lastDeckId) continue;
+        if (groups[id].length > maxCards) {
+          maxCards = groups[id].length;
+          bestDeckId = id;
+        }
+      }
+
+      // Si no encontramos uno diferente, tomamos el que quede (ocurre si un mazo es mucho más grande que los demás)
+      if (!bestDeckId) {
+        bestDeckId = Object.keys(groups).find(id => groups[id].length > 0) || null;
+        if (!bestDeckId) break; // Ya no quedan cartas en ningún mazo
+      }
+
+      // Sacamos la carta y la añadimos a la cola final
+      const card = groups[bestDeckId].pop();
+      if (card) {
+        finalQueue.push(card);
+        lastDeckId = bestDeckId;
+      }
+    }
+
+    return finalQueue;
+  }, [selectedDeckIds]);
 
   // Inicializar el mazo al empezar
   useEffect(() => {
-    if (selectedDeckIds.length > 0) {
-      const filtered = allQuestions.filter(q => selectedDeckIds.includes(q.deckId));
-      setQuestionsQueue(shuffle([...filtered]));
-    }
-  }, [selectedDeckIds]);
+    const newQueue = buildInterleavedQueue();
+    setQuestionsQueue(newQueue);
+  }, [buildInterleavedQueue]);
 
   const pickNextQuestion = useCallback(() => {
     if (questionsQueue.length === 0) return;
@@ -40,11 +92,11 @@ export default function JuegoPage() {
     
     if (nextQ) {
       setCurrentQuestion(nextQ);
-      setQuestionsQueue(nextQueue); // Actualizamos el mazo restante
+      setQuestionsQueue(nextQueue);
     }
   }, [questionsQueue]);
 
-  // Primera carga
+  // Primera carga automática
   useEffect(() => {
     if (questionsQueue.length > 0 && !currentQuestion) {
       pickNextQuestion();
@@ -55,7 +107,7 @@ export default function JuegoPage() {
     if (isRolling || !isReady) return;
     
     if (questionsQueue.length === 0) {
-        alert("¡Se acabaron las cartas! Regresa para elegir más mazzos.");
+        alert("¡Se acabaron las cartas! Regresa para elegir más mazos.");
         return;
     }
 
@@ -98,35 +150,49 @@ export default function JuegoPage() {
         </button>
       </nav>
 
-      {/* SECCIÓN CENTRAL: CARTA (Tamaño ajustado) */}
+      {/* SECCIÓN CENTRAL: CARTA CON TAMAÑO FIJO Y SCROLL */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {currentQuestion && deckInfo && (
           <div style={{ 
             backgroundColor: 'white', borderRadius: '24px', width: '100%', maxWidth: '360px',
             borderTop: `18px solid ${deckInfo.color}`, 
             boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
-            padding: '1.5rem 1.2rem', textAlign: 'center',
-            minHeight: '260px', // Reducción vertical sutil
-            display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.8rem'
+            padding: '1.2rem', textAlign: 'center',
+            height: '280px', // Tamaño fijo obligatorio
+            display: 'flex', flexDirection: 'column', boxSizing: 'border-box'
           }}>
              
+             {/* HEADER DE LA CARTA (Fijo) */}
              <h3 style={{ 
-               fontSize: '0.85rem', // Texto más pequeño
+               fontSize: '0.8rem', 
                textTransform: 'uppercase', letterSpacing: '1px', 
-               fontWeight: 800, color: deckInfo.color, margin: 0
+               fontWeight: 800, color: deckInfo.color, margin: '0 0 12px 0',
+               flexShrink: 0
               }}>
                Turno de: {currentPlayerName}
              </h3>
              
-             <h2 style={{ 
-               color: '#222', 
-               fontSize: '1.35rem', // Pregunta más pequeña para que no sature
-               fontWeight: 700, lineHeight: '1.4', margin: '0'
-              }}>
-               "{currentQuestion.text}"
-             </h2>
+             {/* CONTENEDOR DE LA PREGUNTA (Permite Scroll) */}
+             <div style={{
+               flex: 1,
+               overflowY: 'auto',
+               display: 'flex',
+               alignItems: 'center', // Centra verticalmente si el texto es corto
+               justifyContent: 'center',
+               padding: '0 5px'
+             }}>
+               <h2 style={{ 
+                 color: '#222', 
+                 fontSize: '1.15rem', // Texto más pequeño
+                 fontWeight: 700, lineHeight: '1.4', margin: '0',
+                 textAlign: 'center'
+                }}>
+                 "{currentQuestion.text}"
+               </h2>
+             </div>
 
-             <p style={{ fontSize: '0.7rem', color: '#bbb', marginTop: '10px' }}>
+             {/* FOOTER DE LA CARTA (Fijo) */}
+             <p style={{ fontSize: '0.7rem', color: '#bbb', margin: '12px 0 0 0', flexShrink: 0 }}>
                 Cartas restantes: {questionsQueue.length}
              </p>
           </div>
