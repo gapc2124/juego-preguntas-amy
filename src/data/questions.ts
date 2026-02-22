@@ -85,7 +85,7 @@ export const allQuestions: Question[] = [
   { id: 'c37', text: "¿A que país le gustaría ir a vivir a tu pareja?", deckId: '1' },
   { id: 'c38', text: "¿Qué es lo que tu pareja encuentra más 'tierno' de tu forma de ser?", deckId: '1' },
   { id: 'c39', text: "¿A Quién le gusta dar más afecto en público?", deckId: '1' },
-  { id: 'c40', text: "¿Quién es más probable de decir ''te lo dije' en una discusión", deckId: '1' },
+  { id: 'c40', text: "¿Quién es más probable de decir 'te lo dije' en una discusión", deckId: '1' },
 
   // --- Íntimo (ID: 2) ---
   { id: 'i1', text: "¿Qué es lo que más te hace sentir deseado/a por tu pareja?", deckId: '2' },
@@ -183,6 +183,9 @@ export const allQuestions: Question[] = [
   { id: 'e18', text: "¿Qué consejo sobre el amor que has escuchado o leído crees que deberíamos aplicar siempre en nuestra relación?", deckId: '5' },
   { id: 'e19', text: "¿Te gusta como trato a tu familia? ¿Por qué?", deckId: '5' },
   { id: 'e20', text: "Si pudieras retroceder al día en que nos conocimos, ¿qué consejo te darías a ti mismo/a sobre la historia que íbamos a vivir?", deckId: '5' },
+  { id: 'e21', text: "¿Cuál es el cumplido que te he hecho que más se te ha quedado grabado en el corazón?", deckId: '5' },
+  { id: 'e22', text: "¿Cuál es esa 'meta de pareja' que más te ilusiona alcanzar antes de que cumplamos nuestro siguiente aniversario?", deckId: '5' },
+  { id: 'e23', text: "Si pudieras pedirme un 'deseo' para nuestro primer año de casados, ¿cuál sería?", deckId: '5' },
 
   // --- Random (ID: 6) ---
   { id: 'r1', text: "Si tuvieras que vivir en una película, ¿cuál elegirías?", deckId: '6' },
