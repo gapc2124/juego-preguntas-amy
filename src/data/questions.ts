@@ -109,7 +109,7 @@ export const allQuestions: Question[] = [
   { id: 'i24', text: "¿En qué podría mejorar tu pareja respecto al afecto físico?", deckId: '2' },
   { id: 'i25', text: "¿En qué podría mejorar tu pareja respecto al afecto verbal?", deckId: '2' },
   { id: 'i26', text: "¿Eres de los que piensa: 'pis en la ducha' o definitivamente no?", deckId: '2' },
-  { id: 'i27', text: "¿Qué límite íntimo le pedirías a tu pareja no romper jamás?", deckId: '2' },
+  { id: 'i27', text: "¿Qué límite en la intimidad le pedirías a tu pareja no romper jamás?", deckId: '2' },
   { id: 'i28', text: "¿Quién crees que debe tomar la iniciativa en vuestra futura intimidad?", deckId: '2' },
   { id: 'i29', text: "¿Qué tan importantes son para ti los olores en los momentos íntimos?", deckId: '2' },
   { id: 'i30', text: "¿Qué tan importante es para ti lo visual en la intimidad?", deckId: '2' },

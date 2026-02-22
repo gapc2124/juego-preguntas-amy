@@ -17,78 +17,80 @@ export default function JuegoPage() {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [questionsQueue, setQuestionsQueue] = useState<Question[]>([]);
 
-  // Función para barajar un arreglo
+  // Función para barajar un arreglo aleatoriamente
   const shuffle = (array: Question[]) => {
     return [...array].sort(() => Math.random() - 0.5);
   };
 
-  // Algoritmo avanzado para intercalar mazos
-  const buildInterleavedQueue = useCallback(() => {
+  // NUEVO ALGORITMO: Balanceo estricto con tolerancia de +2
+  const buildBalancedQueue = useCallback(() => {
     if (selectedDeckIds.length === 0) return [];
     
-    // Filtramos todas las preguntas de los mazos seleccionados
-    const filtered = allQuestions.filter(q => selectedDeckIds.includes(q.deckId));
-    
-    // Si solo hay un mazo, simplemente lo barajamos
-    if (selectedDeckIds.length === 1) return shuffle(filtered);
-
-    // Agrupamos las preguntas por deckId
+    // 1. Agrupar las preguntas barajadas por categoría (deck)
     const groups: Record<string, Question[]> = {};
     selectedDeckIds.forEach(id => { groups[id] = []; });
-    filtered.forEach(q => {
+    
+    allQuestions.forEach(q => {
       if (groups[q.deckId]) groups[q.deckId].push(q);
     });
 
-    // Barajamos internamente cada grupo
     for (const id in groups) {
       groups[id] = shuffle(groups[id]);
     }
 
+    // 2. Controladores de aparición
+    const appearanceCounts: Record<string, number> = {};
+    selectedDeckIds.forEach(id => { appearanceCounts[id] = 0; });
+
     const finalQueue: Question[] = [];
     let lastDeckId: string | null = null;
 
-    // Intercalamos las cartas
+    // 3. Bucle de extracción balanceada
     while (true) {
-      let bestDeckId: string | null = null;
-      let maxCards = 0;
+      // Filtrar solo los mazos que aún tienen cartas
+      const availableDecks = selectedDeckIds.filter(id => groups[id].length > 0);
+      if (availableDecks.length === 0) break; // Fin: Ya no hay cartas en ningún mazo
 
-      // Buscamos el mazo válido (diferente al anterior) con más cartas restantes
-      for (const id in groups) {
-        if (id === lastDeckId) continue;
-        if (groups[id].length > maxCards) {
-          maxCards = groups[id].length;
-          bestDeckId = id;
-        }
-      }
+      // Calcular el mínimo de apariciones SOLO entre los mazos que aún tienen cartas
+      const minAppearances = Math.min(...availableDecks.map(id => appearanceCounts[id]));
 
-      // Si no encontramos uno diferente, tomamos el que quede (ocurre si un mazo es mucho más grande que los demás)
-      if (!bestDeckId) {
-        bestDeckId = Object.keys(groups).find(id => groups[id].length > 0) || null;
-        if (!bestDeckId) break; // Ya no quedan cartas en ningún mazo
-      }
+      // Filtrar mazos válidos: No pueden superar por 2 al que menos ha salido
+      let validDecks = availableDecks.filter(id => appearanceCounts[id] < minAppearances + 2);
 
-      // Sacamos la carta y la añadimos a la cola final
-      const card = groups[bestDeckId].pop();
+      // Si por alguna razón matemática no hay válidos, el respaldo de seguridad usa todos los disponibles
+      if (validDecks.length === 0) validDecks = availableDecks;
+
+      // Intentar no repetir la categoría exactamente anterior (si hay opciones)
+      let candidateDecks = validDecks.filter(id => id !== lastDeckId);
+      if (candidateDecks.length === 0) candidateDecks = validDecks; 
+
+      // Elegir el mazo con más cartas restantes para vaciarlos uniformemente
+      candidateDecks.sort((a, b) => groups[b].length - groups[a].length);
+      const pickedDeck = candidateDecks[0];
+
+      // Extraer la carta y registrarla
+      const card = groups[pickedDeck].pop();
       if (card) {
         finalQueue.push(card);
-        lastDeckId = bestDeckId;
+        appearanceCounts[pickedDeck]++;
+        lastDeckId = pickedDeck;
       }
     }
 
     return finalQueue;
   }, [selectedDeckIds]);
 
-  // Inicializar el mazo al empezar
+  // Inicializar el mazo balanceado al empezar
   useEffect(() => {
-    const newQueue = buildInterleavedQueue();
+    const newQueue = buildBalancedQueue();
     setQuestionsQueue(newQueue);
-  }, [buildInterleavedQueue]);
+  }, [buildBalancedQueue]);
 
   const pickNextQuestion = useCallback(() => {
     if (questionsQueue.length === 0) return;
 
     const nextQueue = [...questionsQueue];
-    const nextQ = nextQueue.shift(); // Sacamos la primera carta
+    const nextQ = nextQueue.shift(); 
     
     if (nextQ) {
       setCurrentQuestion(nextQ);
@@ -96,7 +98,7 @@ export default function JuegoPage() {
     }
   }, [questionsQueue]);
 
-  // Primera carga automática
+  // Mostrar la primera carta automáticamente
   useEffect(() => {
     if (questionsQueue.length > 0 && !currentQuestion) {
       pickNextQuestion();
@@ -158,11 +160,25 @@ export default function JuegoPage() {
             borderTop: `18px solid ${deckInfo.color}`, 
             boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
             padding: '1.2rem', textAlign: 'center',
-            height: '280px', // Tamaño fijo obligatorio
-            display: 'flex', flexDirection: 'column', boxSizing: 'border-box'
+            height: '280px', 
+            display: 'flex', flexDirection: 'column', boxSizing: 'border-box',
+            position: 'relative' // Necesario para el ID en la esquina
           }}>
              
-             {/* HEADER DE LA CARTA (Fijo) */}
+             {/* ID DE LA CARTA EN LA ESQUINA SUPERIOR DERECHA */}
+             <span style={{
+               position: 'absolute',
+               top: '12px',
+               right: '16px',
+               fontSize: '0.65rem',
+               fontWeight: 800,
+               color: '#d1d1d1',
+               letterSpacing: '1px'
+             }}>
+               #{currentQuestion.id}
+             </span>
+
+             {/* HEADER DE LA CARTA */}
              <h3 style={{ 
                fontSize: '0.8rem', 
                textTransform: 'uppercase', letterSpacing: '1px', 
@@ -172,18 +188,14 @@ export default function JuegoPage() {
                Turno de: {currentPlayerName}
              </h3>
              
-             {/* CONTENEDOR DE LA PREGUNTA (Permite Scroll) */}
+             {/* CONTENEDOR DE LA PREGUNTA (Con Scroll) */}
              <div style={{
-               flex: 1,
-               overflowY: 'auto',
-               display: 'flex',
-               alignItems: 'center', // Centra verticalmente si el texto es corto
-               justifyContent: 'center',
-               padding: '0 5px'
+               flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'center',
+               justifyContent: 'center', padding: '0 5px'
              }}>
                <h2 style={{ 
                  color: '#222', 
-                 fontSize: '1.15rem', // Texto más pequeño
+                 fontSize: '1.15rem',
                  fontWeight: 700, lineHeight: '1.4', margin: '0',
                  textAlign: 'center'
                 }}>
@@ -191,7 +203,7 @@ export default function JuegoPage() {
                </h2>
              </div>
 
-             {/* FOOTER DE LA CARTA (Fijo) */}
+             {/* FOOTER DE LA CARTA */}
              <p style={{ fontSize: '0.7rem', color: '#bbb', margin: '12px 0 0 0', flexShrink: 0 }}>
                 Cartas restantes: {questionsQueue.length}
              </p>
